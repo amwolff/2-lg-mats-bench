@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 
-project(HelloHello C CXX)
+project(opserver C CXX)
 
 if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -8,8 +8,8 @@ else()
   add_definitions(-D_WIN32_WINNT=0x600)
 endif()
 
-# This branch assumes that gRPC and all its dependencies are already installed
-# on this system, so they can be located by find_package().
+# This branch assumes that Eigen as well as gRPC and all their dependencies are
+# already installed on this system, so they can be located by find_package().
 
 # Find Protobuf installation
 # Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
@@ -29,42 +29,56 @@ set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 # Find Eigen installation
-# Looks for ... file installed by Eigen's cmake installation? (FIXME: research this)
+# Looks for Eigen3Config.cmake file installed by Eigen's cmake installation.
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 set(_EIGEN3_EIGEN Eigen3::Eigen)
 message(STATUS "Using Eigen3 ${Eigen3_VERSION}")
 
 # Proto file
-get_filename_component(hw_proto "proto/helloworld.proto" ABSOLUTE)
-get_filename_component(hw_proto_path "${hw_proto}" PATH)
+get_filename_component(ops_proto "proto/matmult.proto" ABSOLUTE)
+get_filename_component(ops_proto_path "${ops_proto}" PATH)
 
 # Generated sources
-set(hw_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.cc")
-set(hw_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.pb.h")
-set(hw_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.cc")
-set(hw_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/helloworld.grpc.pb.h")
+set(ops_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/matmult.pb.cc")
+set(ops_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/matmult.pb.h")
+set(ops_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/matmult.grpc.pb.cc")
+set(ops_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/matmult.grpc.pb.h")
 add_custom_command(
-      OUTPUT "${hw_proto_srcs}" "${hw_proto_hdrs}" "${hw_grpc_srcs}" "${hw_grpc_hdrs}"
+      OUTPUT "${ops_proto_srcs}" "${ops_proto_hdrs}" "${ops_grpc_srcs}" "${ops_grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
       ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
         --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
-        -I "${hw_proto_path}"
+        -I "${ops_proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${hw_proto}"
-      DEPENDS "${hw_proto}")
+        "${ops_proto}"
+      DEPENDS "${ops_proto}")
 
 # Include generated *.pb.h files
-include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(SYSTEM "${CMAKE_CURRENT_BINARY_DIR}")
 
-# Targets greeter_[async_](client|server)
-foreach(_target
-  greeter_client greeter_server
-  greeter_async_client greeter_async_server)
+set(ops_add_srcs "${CMAKE_CURRENT_SOURCE_DIR}/perf_srvc_impl.cc")
+
+# Finally - assemble the server
+foreach(_target server)
   add_executable(${_target} "${_target}.cc"
-    ${hw_proto_srcs}
-    ${hw_grpc_srcs})
+    ${ops_proto_srcs}
+    ${ops_grpc_srcs}
+    ${ops_add_srcs})
   target_link_libraries(${_target}
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF}
     ${_EIGEN3_EIGEN})
+  target_compile_options(${_target} PRIVATE
+    $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+      -Werror
+      -pedantic-errors
+      -Wall
+      -Wextra
+      -Wpedantic
+      # -Wconversion
+      # -Wsign-conversion
+      -Wno-error=unused-parameter>
+    $<$<CXX_COMPILER_ID:MSVC>:
+      /WX
+      /W4>)
 endforeach()

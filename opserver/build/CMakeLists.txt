@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.5.1)
 
-project(HelloHello-SuperBuild C CXX)
+project(opserver-SuperBuild C CXX)
 
 include(ExternalProject)
 
 # Builds c-ares project from the git submodule.
+#
 # Note: For all external projects, instead of using checked-out code, one could
-# specify GIT_REPOSITORY and GIT_TAG to have cmake download the dependency directly,
-# without needing to add a submodule to your project.
+# specify GIT_REPOSITORY and GIT_TAG to have cmake download the dependency
+# directly, without needing to add a submodule to your project.
 ExternalProject_Add(c-ares
   PREFIX c-ares
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/grpc/third_party/cares/cares"
@@ -37,29 +38,22 @@ ExternalProject_Add(zlib
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/zlib
 )
 
-# Builds eigen project from the git submodule.
-ExternalProject_Add(eigen
-  PREFIX eigen
-  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/eigen-git-mirror"
-  CMAKE_CACHE_ARGS
-        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/eigen
-)
-
-# the location where protobuf-config.cmake will be installed varies by platform
+# The location where protobuf-config.cmake will be installed varies by platform
 if (WIN32)
   set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf/cmake")
 else()
   set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf/lib/cmake/protobuf")
 endif()
 
-# if OPENSSL_ROOT_DIR is set, propagate that hint path to the external projects with OpenSSL dependency.
+# if OPENSSL_ROOT_DIR is set, propagate that hint path to the external projects
+# with OpenSSL dependency.
 set(_CMAKE_ARGS_OPENSSL_ROOT_DIR "")
 if (OPENSSL_ROOT_DIR)
   set(_CMAKE_ARGS_OPENSSL_ROOT_DIR "-DOPENSSL_ROOT_DIR:PATH=${OPENSSL_ROOT_DIR}")
 endif()
 
-# Builds gRPC based on locally checked-out sources and set arguments so that all the dependencies
-# are correctly located.
+# Builds gRPC project from the git submodule and set arguments so that all the
+# dependencies are correctly located.
 ExternalProject_Add(grpc
   PREFIX grpc
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/grpc"
@@ -79,17 +73,27 @@ ExternalProject_Add(grpc
   DEPENDS c-ares protobuf zlib
 )
 
-# Build the helloworld projects itself using a CMakeLists.txt that assumes all the dependencies
-# have already been installed.
-# Even though helloworld is not really an "external project" from perspective of this build,
-# we are still importing it using ExternalProject_Add because that allows us to use find_package()
-# to locate all the dependencies (if we were building helloworld directly in this build we,
-# we would have needed to manually import the libraries as opposed to reusing targets exported by
-# gRPC and protobuf).
-ExternalProject_Add(helloworld
-  PREFIX helloworld
+# Builds eigen project from the git submodule.
+ExternalProject_Add(eigen
+  PREFIX eigen
+  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/eigen-git-mirror"
+  CMAKE_CACHE_ARGS
+        -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/eigen
+)
+
+# Build the opserver project itself using a CMakeLists.txt that assumes all the
+# dependencies have already been installed.
+#
+# Even though opserver is not really an "external project" from perspective of
+# this build, we are still importing it using ExternalProject_Add because that
+# allows us to use find_package() to locate all the dependencies (if we were
+# building opserver directly in this build, we would have needed to manually
+# import the libraries as opposed to reusing targets exported by gRPC and
+# protobuf).
+ExternalProject_Add(opserver
+  PREFIX opserver
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../src"
-  BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/helloworld"
+  BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/server"
   INSTALL_COMMAND ""
   CMAKE_CACHE_ARGS
         -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}

@@ -1,0 +1,5 @@
+# Ignore everything in build directory except ignore and CMake manifests
+*
+
+!CMakeLists.txt
+!.gitignore

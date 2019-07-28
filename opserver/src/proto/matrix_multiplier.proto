@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package matrixmultiplier;
-
-service MatrixMultiplier {
-	rpc MultiplyMatrices(stream BigMatrix) returns (BigMatrix) {}
-}
