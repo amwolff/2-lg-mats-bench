@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.1)
 
-project(opserver-SuperBuild C CXX)
+project(server-SuperBuild C CXX)
 
 include(ExternalProject)
 
@@ -17,6 +17,7 @@ ExternalProject_Add(c-ares
         -DCARES_STATIC:BOOL=ON
         -DCARES_STATIC_PIC:BOOL=ON
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/c-ares
+        -DCMAKE_BUILD_TYPE:STRING=$<CONFIG>
 )
 
 # Builds protobuf project from the git submodule.
@@ -28,6 +29,7 @@ ExternalProject_Add(protobuf
         -Dprotobuf_WITH_ZLIB:BOOL=OFF
         -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/protobuf
+        -DCMAKE_BUILD_TYPE:STRING=$<CONFIG>
 )
 
 # Builds zlib project from the git submodule.
@@ -36,6 +38,7 @@ ExternalProject_Add(zlib
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/grpc/third_party/zlib"
   CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/zlib
+        -DCMAKE_BUILD_TYPE:STRING=$<CONFIG>
 )
 
 # The location where protobuf-config.cmake will be installed varies by platform
@@ -70,6 +73,7 @@ ExternalProject_Add(grpc
         -DgRPC_SSL_PROVIDER:STRING=package
         ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/grpc
+        -DCMAKE_BUILD_TYPE:STRING=$<CONFIG>
   DEPENDS c-ares protobuf zlib
 )
 
@@ -79,19 +83,20 @@ ExternalProject_Add(eigen
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/eigen-git-mirror"
   CMAKE_CACHE_ARGS
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/eigen
+        -DCMAKE_BUILD_TYPE:STRING=$<CONFIG>
 )
 
-# Build the opserver project itself using a CMakeLists.txt that assumes all the
+# Build the server project itself using a CMakeLists.txt that assumes all the
 # dependencies have already been installed.
 #
-# Even though opserver is not really an "external project" from perspective of
+# Even though server is not really an "external project" from perspective of
 # this build, we are still importing it using ExternalProject_Add because that
 # allows us to use find_package() to locate all the dependencies (if we were
-# building opserver directly in this build, we would have needed to manually
+# building server directly in this build, we would have needed to manually
 # import the libraries as opposed to reusing targets exported by gRPC and
 # protobuf).
-ExternalProject_Add(opserver
-  PREFIX opserver
+ExternalProject_Add(server
+  PREFIX server
   SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../src"
   BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/server"
   INSTALL_COMMAND ""
@@ -102,5 +107,6 @@ ExternalProject_Add(opserver
         ${_CMAKE_ARGS_OPENSSL_ROOT_DIR}
         -DgRPC_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/grpc/lib/cmake/grpc
         -DEigen3_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/eigen/cmake
+        -DCMAKE_BUILD_TYPE:STRING=$<CONFIG>
   DEPENDS protobuf grpc eigen
 )

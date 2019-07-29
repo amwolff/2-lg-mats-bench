@@ -1,6 +1,6 @@
 [submodule "opserver/third_party/eigen-git-mirror"]
-	path = opserver/third_party/eigen-git-mirror
+	path = server/third_party/eigen-git-mirror
 	url = git@github.com:eigenteam/eigen-git-mirror.git
 [submodule "opserver/third_party/grpc"]
-	path = opserver/third_party/grpc
+	path = server/third_party/grpc
 	url = git@github.com:grpc/grpc.git
