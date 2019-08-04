@@ -5,7 +5,6 @@
 
 using grpc::ServerContext;
 using grpc::Status;
-using grpc::StatusCode;
 using matmult::Performer;
 using matmult::PerformerRequest;
 using matmult::PerformerResponse;

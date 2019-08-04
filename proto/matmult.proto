@@ -7,8 +7,11 @@ service Performer {
 }
 
 message Matrix {
+  // Eigen uses column-major order to store its matrices:
+  // https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html
+  // I think it's fair to adjust to Eigen.
   message Column {
-    repeated double element = 1 [packed=true];
+    repeated double coefficients = 1 [packed=true];
   }
   repeated Column columns = 1;
 }

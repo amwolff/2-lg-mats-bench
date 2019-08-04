@@ -12,7 +12,8 @@ endif()
 # already installed on this system, so they can be located by find_package().
 
 # Find Protobuf installation
-# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
+# Looks for protobuf-config.cmake file installed by Protobuf's cmake
+# installation.
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${protobuf_VERSION}")
@@ -35,26 +36,27 @@ set(_EIGEN3_EIGEN Eigen3::Eigen)
 message(STATUS "Using Eigen3 ${Eigen3_VERSION}")
 
 # Proto file
-get_filename_component(srv_proto "proto/matmult.proto" ABSOLUTE)
+get_filename_component(srv_proto "../../proto/matmult.proto" ABSOLUTE)
 get_filename_component(srv_proto_path "${srv_proto}" PATH)
 
 # Generated sources
-set(srv_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/matmult.pb.cc")
-set(srv_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/matmult.pb.h")
-set(srv_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/matmult.grpc.pb.cc")
-set(srv_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/matmult.grpc.pb.h")
+set(srv_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.pb.cc")
+set(srv_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.pb.h")
+set(srv_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.grpc.pb.cc")
+set(srv_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.grpc.pb.h")
+# Maybe swap this `add_custom_command` with prototool-based generation?
 add_custom_command(
       OUTPUT "${srv_proto_srcs}" "${srv_proto_hdrs}" "${srv_grpc_srcs}" "${srv_grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
-      ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
-        --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+      ARGS --grpc_out "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp"
+        --cpp_out "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp"
         -I "${srv_proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${srv_proto}"
       DEPENDS "${srv_proto}")
 
 # Include generated *.pb.h files
-include_directories(SYSTEM "${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp")
 
 set(srv_int_srcs "${CMAKE_CURRENT_SOURCE_DIR}/perf_srvc_impl.cc")
 
