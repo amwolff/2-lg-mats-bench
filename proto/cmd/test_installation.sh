@@ -1,4 +1,5 @@
 #!/bin/bash
+
 docker run --rm -v "$(pwd):/work" uber/prototool:latest \
 prototool grpc matmult.proto \
 --address $1 \
@@ -56,3 +57,6 @@ prototool grpc matmult.proto \
         ]
     }
 }'
+
+# TODO(amwolff): add result ('{"result":{"columns":[{"coefficients":[1,0,0]},{"c
+# oefficients":[0,1,0]},{"coefficients":[0,0,1]}]}}') validation.

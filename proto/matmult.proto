@@ -1,3 +1,4 @@
+// TODO(amwolff): Move things here and there according to the linter rules.
 syntax = "proto3";
 
 package matmult;
