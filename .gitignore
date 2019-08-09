@@ -18,6 +18,7 @@
 
 # Fortran module files
 *.mod
+!go.mod
 *.smod
 
 # Compiled Static libraries
@@ -30,3 +31,6 @@
 *.exe
 *.out
 *.app
+
+# Vendor directory
+/vendor
