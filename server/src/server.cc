@@ -2,6 +2,7 @@
 #include <string>
 
 #include <grpcpp/grpcpp.h>
+#include <Eigen/Core>
 
 #include "perf_srvc_impl.h"
 
@@ -16,13 +17,17 @@ void StartServer(const std::string &server_address = "0.0.0.0:50051") {
   PerformerServiceImpl service;
   builder.RegisterService(&service);
 
-  const std::unique_ptr<Server> server(builder.BuildAndStart());
+  std::unique_ptr<Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;
 
   server->Wait();
 }
 
 int main(int argc, char **argv) {
+  const int n = Eigen::nbThreads();
+  if (n > 1) {
+    std::cout << "Eigen: parallelizing on " << n << " threads" << std::endl;
+  }
   StartServer();
   return EXIT_SUCCESS;
 }

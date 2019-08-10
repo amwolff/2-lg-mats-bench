@@ -38,8 +38,9 @@ Status PerformerServiceImpl::MultiplyMatrices(ServerContext* context,
 
   MatrixXd result_eigen = mplier_eigen * mplicand_eigen;
 
+  auto response_result = response->mutable_result();
   for (Index ic = 0, ec = result_eigen.cols(); ec != ic; ++ic) {
-    auto response_result_column = response->mutable_result()->add_columns();
+    auto response_result_column = response_result->add_columns();
     for (Index ir = 0, er = result_eigen.rows(); er != ir; ++ir) {
       response_result_column->add_coefficients(result_eigen.coeff(ir, ic));
     }

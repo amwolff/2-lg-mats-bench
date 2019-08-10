@@ -69,7 +69,8 @@ foreach(_target server)
   target_link_libraries(${_target}
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF}
-    ${_EIGEN3_EIGEN})
+    ${_EIGEN3_EIGEN}
+    $<$<CXX_COMPILER_ID:GNU>:-fopenmp>)
   target_compile_options(${_target} PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
       -Werror
@@ -81,8 +82,12 @@ foreach(_target server)
       -Wpedantic
       -Wno-error=conversion
       -Wno-error=sign-conversion
-      -Wno-error=unused-parameter>
-    $<$<CXX_COMPILER_ID:MSVC>:
+      -Wno-error=unused-parameter
+      -march=native
+      $<$<CXX_COMPILER_ID:GNU>:-fopenmp>>
+    $<$<CXX_COMPILER_ID:MSVC>: # FIXME(amwolff): I have never tested this.
+      # https://stackoverflow.com/questions/30800242/equivalents-to-gcc-clangs-march-native-in-other-compilers
       /WX
-      /W4>)
+      /W4
+      /openmp>)
 endforeach()
