@@ -11,7 +11,7 @@ option objc_class_prefix = "AMX";
 option optimize_for = SPEED;
 option php_namespace = "Amwolff\\Matmult\\V1";
 
-// Matrix is a building block of MatrixMultiplicationAPI request/response.
+// Matrix is a building block of MatrixProductAPI request/response.
 message Matrix {
   // Eigen uses column-major order to store its matrices:
   // https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html

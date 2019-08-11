@@ -20,7 +20,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// Matrix is a building block of MatrixMultiplicationAPI request/response.
+// Matrix is a building block of MatrixProductAPI request/response.
 type Matrix struct {
 	Columns              []*Matrix_Column `protobuf:"bytes,1,rep,name=columns,proto3" json:"columns,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
