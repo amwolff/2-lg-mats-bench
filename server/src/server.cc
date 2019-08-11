@@ -4,7 +4,7 @@
 #include <grpcpp/grpcpp.h>
 #include <Eigen/Core>
 
-#include "perf_srvc_impl.h"
+#include "matmult_impl.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -14,7 +14,7 @@ void StartServer(const std::string &server_address = "0.0.0.0:50051") {
 
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 
-  PerformerServiceImpl service;
+  MatrixProductAPIImpl service;
   builder.RegisterService(&service);
 
   std::unique_ptr<Server> server(builder.BuildAndStart());

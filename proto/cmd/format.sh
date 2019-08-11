@@ -1,4 +1,4 @@
 #!/bin/bash
 
 docker run --rm -v "$(pwd):/work" uber/prototool:latest \
-prototool format -d
+prototool format -w

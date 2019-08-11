@@ -1,4 +1,4 @@
-#include "perf_srvc_impl.h"
+#include "matmult_impl.h"
 
 #include <Eigen/Dense>
 
@@ -6,9 +6,9 @@ using Eigen::Index;
 using Eigen::MatrixXd;
 using grpc::StatusCode;
 
-Status PerformerServiceImpl::MultiplyMatrices(ServerContext* context,
-                                              const PerformerRequest* request,
-                                              PerformerResponse* response) {
+Status MatrixProductAPIImpl::Multiply(ServerContext* context,
+                                      const MultiplyRequest* request,
+                                      MultiplyResponse* response) {
   const auto& mplier = request->multiplier();
   const int mplier_columns_size = mplier.columns_size();
   const int mplier_rows_size = mplier.columns(0).coefficients_size();

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package amwolff.matmult.v1;
+
+option csharp_namespace = "Amwolff.Matmult.V1";
+option go_package = "matmultv1";
+option java_multiple_files = true;
+option java_outer_classname = "MatrixProductApiProto";
+option java_package = "com.amwolff.matmult.v1";
+option objc_class_prefix = "AMX";
+option optimize_for = SPEED;
+option php_namespace = "Amwolff\\Matmult\\V1";
+
+import "amwolff/matmult/v1/matrix.proto";
+
+// MatrixProductAPI is a service with matrix multiplication capabilities.
+service MatrixProductAPI {
+  // Multiply multiplies request matrices.
+  rpc Multiply(MultiplyRequest) returns (MultiplyResponse);
+}
+
+message MultiplyRequest {
+  Matrix multiplier = 1;
+  Matrix multiplicand = 2;
+}
+
+message MultiplyResponse {
+  Matrix result = 1;
+}

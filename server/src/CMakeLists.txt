@@ -32,40 +32,48 @@ set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 # Find Eigen installation
 # Looks for Eigen3Config.cmake file installed by Eigen's cmake installation.
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-set(_EIGEN3_EIGEN Eigen3::Eigen)
 message(STATUS "Using Eigen3 ${Eigen3_VERSION}")
 
-# Proto file
-get_filename_component(srv_proto "../../proto/matmult.proto" ABSOLUTE)
-get_filename_component(srv_proto_path "${srv_proto}" PATH)
+set(_EIGEN3_EIGEN Eigen3::Eigen)
+
+# Proto files
+get_filename_component(api_proto "../../proto/amwolff/matmult/v1/matrix_product_api.proto" ABSOLUTE)
+get_filename_component(matrix_proto "../../proto/amwolff/matmult/v1/matrix.proto" ABSOLUTE)
+get_filename_component(proto_path "../../proto" ABSOLUTE)
 
 # Generated sources
-set(srv_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.pb.cc")
-set(srv_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.pb.h")
-set(srv_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.grpc.pb.cc")
-set(srv_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/matmult.grpc.pb.h")
-# Maybe swap this `add_custom_command` with prototool-based generation?
+set(api_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix_product_api.pb.cc")
+set(api_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix_product_api.pb.h")
+set(api_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix_product_api.grpc.pb.cc")
+set(api_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix_product_api.grpc.pb.h")
+set(matrix_proto_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix.pb.cc")
+set(matrix_proto_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix.pb.h")
+set(matrix_grpc_srcs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix.grpc.pb.cc")
+set(matrix_grpc_hdrs "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp/amwolff/matmult/v1/matrix.grpc.pb.h")
 add_custom_command(
-      OUTPUT "${srv_proto_srcs}" "${srv_proto_hdrs}" "${srv_grpc_srcs}" "${srv_grpc_hdrs}"
+      OUTPUT "${api_proto_srcs}" "${api_proto_hdrs}" "${api_grpc_srcs}" "${api_grpc_hdrs}" "${matrix_proto_srcs}"
+        "${matrix_proto_hdrs}" "${matrix_grpc_srcs}" "${matrix_grpc_hdrs}"
       COMMAND ${_PROTOBUF_PROTOC}
       ARGS --grpc_out "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp"
         --cpp_out "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp"
-        -I "${srv_proto_path}"
+        -I "${proto_path}"
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-        "${srv_proto}"
-      DEPENDS "${srv_proto}")
+        "${api_proto}" "${matrix_proto}"
+      DEPENDS "${api_proto}" "${matrix_proto}")
 
 # Include generated *.pb.h files
 include_directories(SYSTEM "${CMAKE_CURRENT_SOURCE_DIR}/../../gen/cpp")
 
-set(srv_int_srcs "${CMAKE_CURRENT_SOURCE_DIR}/perf_srvc_impl.cc")
+set(srv_srcs "${CMAKE_CURRENT_SOURCE_DIR}/matmult_impl.cc")
 
 # Finally - assemble the server
 foreach(_target server)
   add_executable(${_target} "${_target}.cc"
-    ${srv_proto_srcs}
-    ${srv_grpc_srcs}
-    ${srv_int_srcs})
+    ${api_proto_srcs}
+    ${api_grpc_srcs}
+    ${matrix_proto_srcs}
+    ${matrix_grpc_srcs}
+    ${srv_srcs})
   target_link_libraries(${_target}
     ${_GRPC_GRPCPP_UNSECURE}
     ${_PROTOBUF_LIBPROTOBUF}
