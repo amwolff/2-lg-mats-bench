@@ -2,8 +2,9 @@
 #include <string>
 
 #include <grpcpp/grpcpp.h>
+#include <Eigen/Core>
 
-#include "perf_srvc_impl.h"
+#include "matmult_impl.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -13,7 +14,7 @@ void StartServer(const std::string &server_address = "0.0.0.0:50051") {
 
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 
-  PerformerServiceImpl service;
+  MatrixProductAPIImpl service;
   builder.RegisterService(&service);
 
   std::unique_ptr<Server> server(builder.BuildAndStart());
@@ -23,6 +24,10 @@ void StartServer(const std::string &server_address = "0.0.0.0:50051") {
 }
 
 int main(int argc, char **argv) {
+  const int n = Eigen::nbThreads();
+  if (n > 1) {
+    std::cout << "Eigen: parallelizing on " << n << " threads" << std::endl;
+  }
   StartServer();
   return EXIT_SUCCESS;
 }

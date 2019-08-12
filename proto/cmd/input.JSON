@@ -1,0 +1,52 @@
+{
+    "multiplier": {
+        "columns": [
+            {
+                "coefficients": [
+                    1,
+                    0,
+                    0
+                ]
+            },
+            {
+                "coefficients": [
+                    0,
+                    1,
+                    0
+                ]
+            },
+            {
+                "coefficients": [
+                    0,
+                    0,
+                    1
+                ]
+            }
+        ]
+    },
+    "multiplicand": {
+        "columns": [
+            {
+                "coefficients": [
+                    1,
+                    0,
+                    0
+                ]
+            },
+            {
+                "coefficients": [
+                    0,
+                    1,
+                    0
+                ]
+            },
+            {
+                "coefficients": [
+                    0,
+                    0,
+                    1
+                ]
+            }
+        ]
+    }
+}
