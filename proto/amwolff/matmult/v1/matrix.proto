@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package amwolff.matmult.v1;
+
+option csharp_namespace = "Amwolff.Matmult.V1";
+option go_package = "matmultv1";
+option java_multiple_files = true;
+option java_outer_classname = "MatrixProto";
+option java_package = "com.amwolff.matmult.v1";
+option objc_class_prefix = "AMX";
+option optimize_for = SPEED;
+option php_namespace = "Amwolff\\Matmult\\V1";
+
+// Matrix is a building block of MatrixProductAPI request/response.
+message Matrix {
+  // Eigen uses column-major order to store its matrices:
+  // https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html
+  // I think it's fair to adjust to Eigen.
+  message Column {
+    repeated double coefficients = 1 [packed = true];
+  }
+  repeated Column columns = 1;
+}
