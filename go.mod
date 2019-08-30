@@ -3,6 +3,7 @@ module 2-lg-mats-bench
 go 1.12
 
 require (
+	github.com/amwolff/2-lg-mats-bench v0.0.0-20190812110413-3eceaa2896ae
 	github.com/golang/protobuf v1.3.2
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80 // indirect
