@@ -3,10 +3,17 @@ package bench
 import (
 	"context"
 	"errors"
-	"fmt"
-	matmult "github.com/amwolff/2-lg-mats-bench/gen/go/amwolff/matmult/v1"
-	"gonum.org/v1/gonum/mat"
+	"io/ioutil"
+	"log"
+	"math"
+	"os"
 	"time"
+
+	"google.golang.org/grpc"
+
+	matmult "github.com/amwolff/2-lg-mats-bench/gen/go/amwolff/matmult/v1"
+	"github.com/golang/protobuf/proto"
+	"gonum.org/v1/gonum/mat"
 )
 
 const (
@@ -23,11 +30,15 @@ type Parser interface {
 	parseResponse(response matmult.MultiplyResponse)
 }
 
+type pbRequest struct {
+	request matmult.MultiplyRequest
+}
+
 // The data is stored in column-major order
-type Matrix struct {
-	Data    []float64
-	Columns int
-	Rows    int
+type matrix struct {
+	data    []float64
+	columns int
+	rows    int
 }
 
 type goNumMessage struct {
@@ -37,18 +48,22 @@ type goNumMessage struct {
 }
 
 type primitiveMessage struct {
-	Multiplier   *Matrix
-	Multiplicand *Matrix
-	Product      *Matrix
+	Multiplier   *matrix
+	Multiplicand *matrix
+	Product      *matrix
 }
 
-func (m Matrix) getValueAt(row int, col int) float64 {
-	i := col*m.Rows + row
-	return m.Data[i]
+func (m matrix) coeff(row int, col int) float64 {
+	i := col*m.rows + row
+	return m.data[i]
 }
 
-func newMatrix(data []float64, columns int, rows int) *Matrix {
-	return &Matrix{data, columns, rows}
+func newMatrix(data []float64, columns int, rows int) *matrix {
+	return &matrix{data, columns, rows}
+}
+
+func (pb pbRequest) writeRequest() matmult.MultiplyRequest {
+	return pb.request
 }
 
 func (gn goNumMessage) writeRequest() matmult.MultiplyRequest {
@@ -84,14 +99,14 @@ func (gn goNumMessage) writeRequest() matmult.MultiplyRequest {
 
 func (pm primitiveMessage) writeRequest() matmult.MultiplyRequest {
 	request := &matmult.MultiplyRequest{}
-	multiplierRows, multiplierColumns := pm.Multiplier.Rows, pm.Multiplier.Columns
-	multiplicandRows, multiplicandColumns := pm.Multiplicand.Rows, pm.Multiplicand.Columns
+	multiplierRows, multiplierColumns := pm.Multiplier.rows, pm.Multiplier.columns
+	multiplicandRows, multiplicandColumns := pm.Multiplicand.rows, pm.Multiplicand.columns
 
 	multiplier := &matmult.Matrix{}
 	for c := 0; c < multiplierColumns; c++ {
 		column := &matmult.Matrix_Column{}
 		for r := 0; r < multiplierRows; r++ {
-			column.Coefficients = append(column.Coefficients, pm.Multiplier.getValueAt(r, c))
+			column.Coefficients = append(column.Coefficients, pm.Multiplier.coeff(r, c))
 		}
 		multiplier.Columns = append(multiplier.Columns, column)
 		column = nil
@@ -101,7 +116,7 @@ func (pm primitiveMessage) writeRequest() matmult.MultiplyRequest {
 	for c := 0; c < multiplicandColumns; c++ {
 		column := &matmult.Matrix_Column{}
 		for r := 0; r < multiplicandRows; r++ {
-			column.Coefficients = append(column.Coefficients, pm.Multiplicand.getValueAt(r, c))
+			column.Coefficients = append(column.Coefficients, pm.Multiplicand.coeff(r, c))
 		}
 		multiplicand.Columns = append(multiplicand.Columns, column)
 		column = nil
@@ -189,7 +204,8 @@ func (pm *primitiveMessage) parseResponse(response matmult.MultiplyResponse) {
 	pm.Product = newMatrix(v, productColumns, productRows)
 }
 
-func multiplyOnSiteCPP(client matmult.MatrixProductAPIClient, request *matmult.MultiplyRequest) (*matmult.MultiplyResponse, error) {
+func multiplyOnSiteCPP(client matmult.MatrixProductAPIClient, message Writer) (*matmult.MultiplyResponse, error) {
+	request := message.writeRequest()
 	if len(request.GetMultiplier().GetColumns()) != len(request.GetMultiplicand().GetColumns()) {
 		err := errors.New("dimensions mismatch")
 		return nil, err
@@ -198,17 +214,42 @@ func multiplyOnSiteCPP(client matmult.MatrixProductAPIClient, request *matmult.M
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	response, err := client.Multiply(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
+	return client.Multiply(ctx, &request)
 }
 
-func matPrint(X ...mat.Matrix) {
-	for _, x := range X {
-		fa := mat.Formatted(x, mat.Prefix(""), mat.Squeeze())
-		fmt.Printf("%v\n", fa)
+func setup() (*grpc.ClientConn, matmult.MatrixProductAPIClient, matmult.MultiplyRequest, matmult.MultiplyResponse) {
+	conn, err := grpc.Dial(serverAddr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt64)))
+	if err != nil {
+		log.Fatalf("Couldn't connect to the server: %v\n", err)
 	}
+	client := matmult.NewMatrixProductAPIClient(conn)
+
+	pbFile, err := os.Open(pbPath)
+	if err != nil {
+		log.Fatalf("Couldn't open protool buffers message: %v\n", err)
+	}
+	defer pbFile.Close()
+
+	pbBytes, err := ioutil.ReadAll(pbFile)
+	if err != nil {
+		log.Fatalf("Couldn't read protool buffers message: %v\n", err)
+	}
+
+	var pbRequest pbRequest
+	var request matmult.MultiplyRequest
+	if err := proto.Unmarshal(pbBytes, &request); err != nil {
+		log.Fatalf("Couldn't get request message: %v\n", err)
+	}
+	pbRequest.request = request
+
+	response, err := multiplyOnSiteCPP(client, pbRequest)
+	if err != nil {
+		log.Fatalf("Couldn't get a response: %v\n", err)
+	}
+
+	return conn, client, request, *response
+}
+
+func teardown(conn *grpc.ClientConn) {
+	conn.Close()
 }
