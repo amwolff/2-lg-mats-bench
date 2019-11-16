@@ -1,9 +1,9 @@
 #!/bin/bash
 
 docker run --rm -v "$(pwd):/work" uber/prototool:latest \
-prototool grpc matmult.proto \
+prototool grpc \
 --address $1 \
---method matmult.Performer/MultiplyMatrices \
+--method amwolff.matmult.v1.MatrixProductAPI/Multiply \
 --data \
 '{
     "multiplier": {
