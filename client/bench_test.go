@@ -1,246 +1,315 @@
 package bench
 
 import (
+	"io/ioutil"
+	"log"
+	"math"
+	"os"
 	"testing"
 
 	matmult "github.com/amwolff/2-lg-mats-bench/gen/go/amwolff/matmult/v1"
 	"github.com/golang/protobuf/proto"
+	"gonum.org/v1/gonum/mat"
+	"google.golang.org/grpc"
+)
+
+const (
+	serverAddr   = "0.0.0.0:50051"
+	testdataPath = "/tmp/MATRIX"
+)
+
+type benchEnv struct {
+	conn    *grpc.ClientConn
+	client  matmult.MatrixProductAPIClient
+	request *matmult.MultiplyRequest
+	check   *matmult.MultiplyResponse
+}
+
+func (b *benchEnv) teardown() {
+	if err := b.conn.Close(); err != nil {
+		log.Printf("Close: %v\n", err)
+	}
+}
+
+func setup(b *testing.B, addr string, testdata string) *benchEnv {
+	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt64)))
+	if err != nil {
+		b.Fatalf("Couldn't connect to the server: %v\n", err)
+	}
+
+	ret := &benchEnv{
+		conn:   conn,
+		client: matmult.NewMatrixProductAPIClient(conn),
+	}
+
+	pbFile, err := os.Open(testdata)
+	if err != nil {
+		b.Fatalf("Couldn't open protocol buffers message: %v\n", err)
+	}
+	defer pbFile.Close()
+
+	pbBytes, err := ioutil.ReadAll(pbFile)
+	if err != nil {
+		b.Fatalf("Couldn't read protocol buffers message: %v\n", err)
+	}
+
+	var request matmult.MultiplyRequest
+	if err := proto.Unmarshal(pbBytes, &request); err != nil {
+		b.Fatalf("Couldn't unmarshal: %v\n", err)
+	}
+
+	req := &request
+
+	ret.request = req
+
+	msg := &goNumMessage{}
+	msg.parseRequest(req)
+
+	r, _ := msg.Multiplier.Dims()
+	_, c := msg.Multiplicand.Dims()
+	pd := mat.NewDense(r, c, nil)
+	pd.Mul(msg.Multiplier, msg.Multiplicand)
+
+	ret.check = &matmult.MultiplyResponse{Result: fromGonumMatrix(pd)}
+
+	return ret
+}
+
+var (
+	MultiplyResponse  *matmult.MultiplyResponse
+	GoNumResponse     *mat.Dense
+	PrimitiveResponse *matrix
 )
 
 func BenchmarkPbInPbOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var pbRequest pbRequest
-	pbRequest.request = request
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *matmult.MultiplyResponse
 	for i := 0; i < b.N; i++ {
 		var err error
-		resp, err = multiplyOnSiteCPP(client, pbRequest)
+		resp, err := multiplyAtService(env.client, &pbRequest{request: env.request})
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = resp
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	MultiplyResponse = response
 }
 
 func BenchmarkPbInGoNumOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var gn goNumMessage
-	var pbRequest pbRequest
-	pbRequest.request = request
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *mat.Dense
 	for i := 0; i < b.N; i++ {
 		var err error
-		resp, err = multiplyOnSiteCPP(client, pbRequest)
+		resp, err := multiplyAtService(env.client, &pbRequest{request: env.request})
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
-		gn.parseResponse(*resp)
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = toGoNum(resp.Result)
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	GoNumResponse = response
 }
 
 func BenchmarkPbInGoPrimitiveOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var pm primitiveMessage
-	var pbRequest pbRequest
-	pbRequest.request = request
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *matrix
 	for i := 0; i < b.N; i++ {
 		var err error
-		resp, err = multiplyOnSiteCPP(client, pbRequest)
+		resp, err := multiplyAtService(env.client, &pbRequest{request: env.request})
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
-		pm.parseResponse(*resp)
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = toPrimitive(resp.Result)
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	PrimitiveResponse = response
 }
 
 func BenchmarkGoNumInPbOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var gn goNumMessage
-	gn.parseRequest(request)
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *matmult.MultiplyResponse
 	for i := 0; i < b.N; i++ {
+		gn := &goNumMessage{}
+		gn.parseRequest(env.request)
 		var err error
-		resp, err = multiplyOnSiteCPP(client, gn)
+		resp, err := multiplyAtService(env.client, gn)
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = resp
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	MultiplyResponse = response
 }
 
 func BenchmarkGoNumInGoNumOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var gn goNumMessage
-	gn.parseRequest(request)
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *mat.Dense
 	for i := 0; i < b.N; i++ {
+		gn := &goNumMessage{}
+		gn.parseRequest(env.request)
 		var err error
-		resp, err = multiplyOnSiteCPP(client, gn)
+		resp, err := multiplyAtService(env.client, gn)
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
-		gn.parseResponse(*resp)
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = toGoNum(resp.Result)
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	GoNumResponse = response
 }
 
 func BenchmarkGoNumInGoPrimitiveOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var pm primitiveMessage
-	var gn goNumMessage
-	gn.parseRequest(request)
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *matrix
 	for i := 0; i < b.N; i++ {
+		gn := &goNumMessage{}
+		gn.parseRequest(env.request)
 		var err error
-		resp, err = multiplyOnSiteCPP(client, gn)
+		resp, err := multiplyAtService(env.client, gn)
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
-		pm.parseResponse(*resp)
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = toPrimitive(resp.Result)
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	PrimitiveResponse = response
 }
 
 func BenchmarkGoPrimitiveInPbOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var pm primitiveMessage
-	pm.parseRequest(request)
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *matmult.MultiplyResponse
 	for i := 0; i < b.N; i++ {
+		pm := &primitiveMessage{}
+		pm.parseRequest(env.request)
 		var err error
-		resp, err = multiplyOnSiteCPP(client, pm)
+		resp, err := multiplyAtService(env.client, pm)
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = resp
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	MultiplyResponse = response
 }
 
 func BenchmarkGoPrimitiveInGoNumOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var gn goNumMessage
-	var pm primitiveMessage
-	pm.parseRequest(request)
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *mat.Dense
 	for i := 0; i < b.N; i++ {
+		pm := &primitiveMessage{}
+		pm.parseRequest(env.request)
 		var err error
-		resp, err = multiplyOnSiteCPP(client, pm)
+		resp, err := multiplyAtService(env.client, pm)
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
-		gn.parseResponse(*resp)
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = toGoNum(resp.Result)
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	GoNumResponse = response
 }
 
 func BenchmarkGoPrimitiveInGoPrimitiveOut(b *testing.B) {
-	conn, client, request, response := setup()
-	defer teardown(conn)
-
-	var resp *matmult.MultiplyResponse
-	var pm primitiveMessage
-	pm.parseRequest(request)
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
 	b.ResetTimer()
+	var response *matrix
 	for i := 0; i < b.N; i++ {
+		pm := &primitiveMessage{}
+		pm.parseRequest(env.request)
 		var err error
-		resp, err = multiplyOnSiteCPP(client, pm)
+		resp, err := multiplyAtService(env.client, pm)
 		if err != nil {
 			b.Errorf("Couldn't get a response: %v\n", err)
 		}
-		pm.parseResponse(*resp)
+		//b.StopTimer()
+		//if !proto.Equal(env.check, resp) {
+		//	b.Fatal("Response messages are not equal!")
+		//}
+		//b.StartTimer()
+		response = toPrimitive(resp.Result)
 	}
 
-	b.StopTimer()
-	if !proto.Equal(&response, resp) {
-		b.Fatal("Response messages are not equal!")
-	}
-	b.StartTimer()
+	PrimitiveResponse = response
 }
 
-func BenchmarkMultiplyOnSiteGO(b *testing.B) {
-	_, _, request, _ := setup()
+func BenchmarkOnsite(b *testing.B) {
+	env := setup(b, serverAddr, testdataPath)
+	defer env.teardown()
 
-	var gn goNumMessage
-	gn.parseRequest(request)
+	gn := &goNumMessage{}
+	gn.parseRequest(env.request)
+	product := &mat.Dense{}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		gn.Product.Mul(gn.Multiplier, gn.Multiplicand)
+		product.Mul(gn.Multiplier, gn.Multiplicand)
 	}
 }

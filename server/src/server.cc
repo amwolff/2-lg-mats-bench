@@ -16,6 +16,7 @@ void StartServer(const std::string &server_address = "0.0.0.0:50051") {
 
   MatrixProductAPIImpl service;
   builder.RegisterService(&service);
+  builder.SetMaxReceiveMessageSize(INT_MAX);
 
   std::unique_ptr<Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;
