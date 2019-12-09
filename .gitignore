@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Go dependency management
+/vendor
+!go.mod
