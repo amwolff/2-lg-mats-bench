@@ -91,6 +91,7 @@ foreach(_target server)
       -Wno-error=conversion
       -Wno-error=sign-conversion
       -Wno-error=unused-parameter
+      -Wno-error=array-bounds
       -march=native
       $<$<CXX_COMPILER_ID:GNU>:-fopenmp>>
     $<$<CXX_COMPILER_ID:MSVC>: # FIXME(amwolff): I have never tested this.
