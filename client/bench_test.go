@@ -1,14 +1,13 @@
 package bench
 
 import (
-	"io/ioutil"
 	"log"
 	"math"
-	"os"
 	"testing"
 
+	"2-lg-mats-bench/proto/examples"
+
 	matmult "github.com/amwolff/2-lg-mats-bench/gen/go/amwolff/matmult/v1"
-	"github.com/golang/protobuf/proto"
 	"gonum.org/v1/gonum/mat"
 	"google.golang.org/grpc"
 )
@@ -42,28 +41,11 @@ func setup(b *testing.B, addr string, testdata string) *benchEnv {
 		client: matmult.NewMatrixProductAPIClient(conn),
 	}
 
-	pbFile, err := os.Open(testdata)
-	if err != nil {
-		b.Fatalf("Couldn't open protocol buffers message: %v\n", err)
-	}
-	defer pbFile.Close()
-
-	pbBytes, err := ioutil.ReadAll(pbFile)
-	if err != nil {
-		b.Fatalf("Couldn't read protocol buffers message: %v\n", err)
-	}
-
-	var request matmult.MultiplyRequest
-	if err := proto.Unmarshal(pbBytes, &request); err != nil {
-		b.Fatalf("Couldn't unmarshal: %v\n", err)
-	}
-
-	req := &request
-
-	ret.request = req
+	request := examples.GenRequest(2, 2)
+	ret.request = &request
 
 	msg := &goNumMessage{}
-	msg.parseRequest(req)
+	msg.parseRequest(&request)
 
 	r, _ := msg.Multiplier.Dims()
 	_, c := msg.Multiplicand.Dims()
