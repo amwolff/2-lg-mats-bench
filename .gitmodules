@@ -1,6 +1,7 @@
-[submodule "server/third_party/grpc"]
-	path = server/third_party/grpc
-	url = git@github.com:grpc/grpc.git
 [submodule "server/third_party/eigen"]
 	path = server/third_party/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "server/third_party/grpc"]
+	path = server/third_party/grpc
+	url = git@github.com:grpc/grpc.git
+	branch = v1.27.x
