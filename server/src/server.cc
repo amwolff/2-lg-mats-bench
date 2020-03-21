@@ -33,6 +33,8 @@ int main(int argc, char **argv) {
   if (n > 1) {
     std::cout << "Eigen: parallelizing on " << n << " threads" << std::endl;
   }
+
   StartServer();
+
   return EXIT_SUCCESS;
 }
