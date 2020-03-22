@@ -5,7 +5,6 @@
 
 #include <algorithm>
 
-#include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/wire_format_lite.h>
@@ -42,7 +41,7 @@ static void InitDefaultsscc_info_MultiplyRequest_amwolff_2fmatmult_2fv1_2fmatrix
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_MultiplyRequest_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_MultiplyRequest_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_MultiplyRequest_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto}, {
       &scc_info_Matrix_amwolff_2fmatmult_2fv1_2fmatrix_2eproto.base,}};
 
 static void InitDefaultsscc_info_MultiplyResponse_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto() {
@@ -57,7 +56,7 @@ static void InitDefaultsscc_info_MultiplyResponse_amwolff_2fmatmult_2fv1_2fmatri
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_MultiplyResponse_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsscc_info_MultiplyResponse_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto}, {
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_MultiplyResponse_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto}, {
       &scc_info_Matrix_amwolff_2fmatmult_2fv1_2fmatrix_2eproto.base,}};
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto[2];
@@ -89,7 +88,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::amwolff::matmult::v1::_MultiplyResponse_default_instance_),
 };
 
-const char descriptor_table_protodef_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto[] =
+const char descriptor_table_protodef_amwolff_2fmatmult_2fv1_2fmatrix_5fproduct_5fapi_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n+amwolff/matmult/v1/matrix_product_api."
   "proto\022\022amwolff.matmult.v1\032\037amwolff/matmu"
   "lt/v1/matrix.proto\"s\n\017MultiplyRequest\022.\n"
@@ -134,18 +133,18 @@ void MultiplyRequest::InitAsDefaultInstance() {
   ::amwolff::matmult::v1::_MultiplyRequest_default_instance_._instance.get_mutable()->multiplicand_ = const_cast< ::amwolff::matmult::v1::Matrix*>(
       ::amwolff::matmult::v1::Matrix::internal_default_instance());
 }
-class MultiplyRequest::HasBitSetters {
+class MultiplyRequest::_Internal {
  public:
   static const ::amwolff::matmult::v1::Matrix& multiplier(const MultiplyRequest* msg);
   static const ::amwolff::matmult::v1::Matrix& multiplicand(const MultiplyRequest* msg);
 };
 
 const ::amwolff::matmult::v1::Matrix&
-MultiplyRequest::HasBitSetters::multiplier(const MultiplyRequest* msg) {
+MultiplyRequest::_Internal::multiplier(const MultiplyRequest* msg) {
   return *msg->multiplier_;
 }
 const ::amwolff::matmult::v1::Matrix&
-MultiplyRequest::HasBitSetters::multiplicand(const MultiplyRequest* msg) {
+MultiplyRequest::_Internal::multiplicand(const MultiplyRequest* msg) {
   return *msg->multiplicand_;
 }
 void MultiplyRequest::clear_multiplier() {
@@ -160,11 +159,6 @@ void MultiplyRequest::clear_multiplicand() {
   }
   multiplicand_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int MultiplyRequest::kMultiplierFieldNumber;
-const int MultiplyRequest::kMultiplicandFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 MultiplyRequest::MultiplyRequest()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -174,12 +168,12 @@ MultiplyRequest::MultiplyRequest(const MultiplyRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.has_multiplier()) {
+  if (from._internal_has_multiplier()) {
     multiplier_ = new ::amwolff::matmult::v1::Matrix(*from.multiplier_);
   } else {
     multiplier_ = nullptr;
   }
-  if (from.has_multiplicand()) {
+  if (from._internal_has_multiplicand()) {
     multiplicand_ = new ::amwolff::matmult::v1::Matrix(*from.multiplicand_);
   } else {
     multiplicand_ = nullptr;
@@ -230,7 +224,6 @@ void MultiplyRequest::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* MultiplyRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -241,14 +234,14 @@ const char* MultiplyRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       // .amwolff.matmult.v1.Matrix multiplier = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(mutable_multiplier(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_multiplier(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // .amwolff.matmult.v1.Matrix multiplicand = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ctx->ParseMessage(mutable_multiplicand(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_multiplicand(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -271,108 +264,32 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool MultiplyRequest::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:amwolff.matmult.v1.MultiplyRequest)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // .amwolff.matmult.v1.Matrix multiplier = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_multiplier()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      // .amwolff.matmult.v1.Matrix multiplicand = 2;
-      case 2: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (18 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_multiplicand()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:amwolff.matmult.v1.MultiplyRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:amwolff.matmult.v1.MultiplyRequest)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void MultiplyRequest::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:amwolff.matmult.v1.MultiplyRequest)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .amwolff.matmult.v1.Matrix multiplier = 1;
-  if (this->has_multiplier()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, HasBitSetters::multiplier(this), output);
-  }
-
-  // .amwolff.matmult.v1.Matrix multiplicand = 2;
-  if (this->has_multiplicand()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, HasBitSetters::multiplicand(this), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:amwolff.matmult.v1.MultiplyRequest)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* MultiplyRequest::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* MultiplyRequest::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:amwolff.matmult.v1.MultiplyRequest)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .amwolff.matmult.v1.Matrix multiplier = 1;
   if (this->has_multiplier()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        1, HasBitSetters::multiplier(this), target);
+      InternalWriteMessage(
+        1, _Internal::multiplier(this), target, stream);
   }
 
   // .amwolff.matmult.v1.Matrix multiplicand = 2;
   if (this->has_multiplicand()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        2, HasBitSetters::multiplicand(this), target);
+      InternalWriteMessage(
+        2, _Internal::multiplicand(this), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:amwolff.matmult.v1.MultiplyRequest)
   return target;
@@ -382,11 +299,6 @@ size_t MultiplyRequest::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:amwolff.matmult.v1.MultiplyRequest)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -405,6 +317,10 @@ size_t MultiplyRequest::ByteSizeLong() const {
         *multiplicand_);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -433,10 +349,10 @@ void MultiplyRequest::MergeFrom(const MultiplyRequest& from) {
   (void) cached_has_bits;
 
   if (from.has_multiplier()) {
-    mutable_multiplier()->::amwolff::matmult::v1::Matrix::MergeFrom(from.multiplier());
+    _internal_mutable_multiplier()->::amwolff::matmult::v1::Matrix::MergeFrom(from._internal_multiplier());
   }
   if (from.has_multiplicand()) {
-    mutable_multiplicand()->::amwolff::matmult::v1::Matrix::MergeFrom(from.multiplicand());
+    _internal_mutable_multiplicand()->::amwolff::matmult::v1::Matrix::MergeFrom(from._internal_multiplicand());
   }
 }
 
@@ -458,10 +374,6 @@ bool MultiplyRequest::IsInitialized() const {
   return true;
 }
 
-void MultiplyRequest::Swap(MultiplyRequest* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void MultiplyRequest::InternalSwap(MultiplyRequest* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
@@ -480,13 +392,13 @@ void MultiplyResponse::InitAsDefaultInstance() {
   ::amwolff::matmult::v1::_MultiplyResponse_default_instance_._instance.get_mutable()->result_ = const_cast< ::amwolff::matmult::v1::Matrix*>(
       ::amwolff::matmult::v1::Matrix::internal_default_instance());
 }
-class MultiplyResponse::HasBitSetters {
+class MultiplyResponse::_Internal {
  public:
   static const ::amwolff::matmult::v1::Matrix& result(const MultiplyResponse* msg);
 };
 
 const ::amwolff::matmult::v1::Matrix&
-MultiplyResponse::HasBitSetters::result(const MultiplyResponse* msg) {
+MultiplyResponse::_Internal::result(const MultiplyResponse* msg) {
   return *msg->result_;
 }
 void MultiplyResponse::clear_result() {
@@ -495,10 +407,6 @@ void MultiplyResponse::clear_result() {
   }
   result_ = nullptr;
 }
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int MultiplyResponse::kResultFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
 MultiplyResponse::MultiplyResponse()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -508,7 +416,7 @@ MultiplyResponse::MultiplyResponse(const MultiplyResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from.has_result()) {
+  if (from._internal_has_result()) {
     result_ = new ::amwolff::matmult::v1::Matrix(*from.result_);
   } else {
     result_ = nullptr;
@@ -552,7 +460,6 @@ void MultiplyResponse::Clear() {
   _internal_metadata_.Clear();
 }
 
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
 const char* MultiplyResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
@@ -563,7 +470,7 @@ const char* MultiplyResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
       // .amwolff.matmult.v1.Matrix result = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ctx->ParseMessage(mutable_result(), ptr);
+          ptr = ctx->ParseMessage(_internal_mutable_result(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -586,84 +493,24 @@ failure:
   goto success;
 #undef CHK_
 }
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool MultiplyResponse::MergePartialFromCodedStream(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-  // @@protoc_insertion_point(parse_start:amwolff.matmult.v1.MultiplyResponse)
-  for (;;) {
-    ::std::pair<::PROTOBUF_NAMESPACE_ID::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // .amwolff.matmult.v1.Matrix result = 1;
-      case 1: {
-        if (static_cast< ::PROTOBUF_NAMESPACE_ID::uint8>(tag) == (10 & 0xFF)) {
-          DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::ReadMessage(
-               input, mutable_result()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
 
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SkipField(
-              input, tag, _internal_metadata_.mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:amwolff.matmult.v1.MultiplyResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:amwolff.matmult.v1.MultiplyResponse)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void MultiplyResponse::SerializeWithCachedSizes(
-    ::PROTOBUF_NAMESPACE_ID::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:amwolff.matmult.v1.MultiplyResponse)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // .amwolff.matmult.v1.Matrix result = 1;
-  if (this->has_result()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, HasBitSetters::result(this), output);
-  }
-
-  if (_internal_metadata_.have_unknown_fields()) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFields(
-        _internal_metadata_.unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:amwolff.matmult.v1.MultiplyResponse)
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* MultiplyResponse::InternalSerializeWithCachedSizesToArray(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target) const {
+::PROTOBUF_NAMESPACE_ID::uint8* MultiplyResponse::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:amwolff.matmult.v1.MultiplyResponse)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .amwolff.matmult.v1.Matrix result = 1;
   if (this->has_result()) {
+    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        1, HasBitSetters::result(this), target);
+      InternalWriteMessage(
+        1, _Internal::result(this), target, stream);
   }
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields(), target);
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields(), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:amwolff.matmult.v1.MultiplyResponse)
   return target;
@@ -673,11 +520,6 @@ size_t MultiplyResponse::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:amwolff.matmult.v1.MultiplyResponse)
   size_t total_size = 0;
 
-  if (_internal_metadata_.have_unknown_fields()) {
-    total_size +=
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::ComputeUnknownFieldsSize(
-        _internal_metadata_.unknown_fields());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -689,6 +531,10 @@ size_t MultiplyResponse::ByteSizeLong() const {
         *result_);
   }
 
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -717,7 +563,7 @@ void MultiplyResponse::MergeFrom(const MultiplyResponse& from) {
   (void) cached_has_bits;
 
   if (from.has_result()) {
-    mutable_result()->::amwolff::matmult::v1::Matrix::MergeFrom(from.result());
+    _internal_mutable_result()->::amwolff::matmult::v1::Matrix::MergeFrom(from._internal_result());
   }
 }
 
@@ -739,10 +585,6 @@ bool MultiplyResponse::IsInitialized() const {
   return true;
 }
 
-void MultiplyResponse::Swap(MultiplyResponse* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
 void MultiplyResponse::InternalSwap(MultiplyResponse* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);

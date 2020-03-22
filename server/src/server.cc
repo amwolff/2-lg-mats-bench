@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 
+#include <grpcpp/ext/proto_server_reflection_plugin.h>
 #include <grpcpp/grpcpp.h>
 #include <Eigen/Core>
 
@@ -10,6 +11,9 @@ using grpc::Server;
 using grpc::ServerBuilder;
 
 void StartServer(const std::string &server_address = "0.0.0.0:50051") {
+  grpc::EnableDefaultHealthCheckService(true);
+  grpc::reflection::InitProtoReflectionServerBuilderPlugin();
+
   ServerBuilder builder;
 
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
@@ -29,6 +33,8 @@ int main(int argc, char **argv) {
   if (n > 1) {
     std::cout << "Eigen: parallelizing on " << n << " threads" << std::endl;
   }
+
   StartServer();
+
   return EXIT_SUCCESS;
 }

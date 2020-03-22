@@ -7,34 +7,24 @@
 #include "amwolff/matmult/v1/matrix_product_api.pb.h"
 
 #include <functional>
+#include <grpc/impl/codegen/port_platform.h>
 #include <grpcpp/impl/codegen/async_generic_service.h>
 #include <grpcpp/impl/codegen/async_stream.h>
 #include <grpcpp/impl/codegen/async_unary_call.h>
 #include <grpcpp/impl/codegen/client_callback.h>
 #include <grpcpp/impl/codegen/client_context.h>
 #include <grpcpp/impl/codegen/completion_queue.h>
-#include <grpcpp/impl/codegen/method_handler_impl.h>
+#include <grpcpp/impl/codegen/message_allocator.h>
+#include <grpcpp/impl/codegen/method_handler.h>
 #include <grpcpp/impl/codegen/proto_utils.h>
 #include <grpcpp/impl/codegen/rpc_method.h>
 #include <grpcpp/impl/codegen/server_callback.h>
+#include <grpcpp/impl/codegen/server_callback_handlers.h>
 #include <grpcpp/impl/codegen/server_context.h>
 #include <grpcpp/impl/codegen/service_type.h>
 #include <grpcpp/impl/codegen/status.h>
 #include <grpcpp/impl/codegen/stub_options.h>
 #include <grpcpp/impl/codegen/sync_stream.h>
-
-namespace grpc_impl {
-class CompletionQueue;
-class ServerCompletionQueue;
-class ServerContext;
-}  // namespace grpc_impl
-
-namespace grpc {
-namespace experimental {
-template <typename RequestT, typename ResponseT>
-class MessageAllocator;
-}  // namespace experimental
-}  // namespace grpc
 
 namespace amwolff {
 namespace matmult {
@@ -63,9 +53,23 @@ class MatrixProductAPI final {
       // Multiply multiplies request matrices.
       virtual void Multiply(::grpc::ClientContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Multiply(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::amwolff::matmult::v1::MultiplyResponse* response, std::function<void(::grpc::Status)>) = 0;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void Multiply(::grpc::ClientContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
       virtual void Multiply(::grpc::ClientContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void Multiply(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
       virtual void Multiply(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
     };
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    typedef class experimental_async_interface async_interface;
+    #endif
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    async_interface* async() { return experimental_async(); }
+    #endif
     virtual class experimental_async_interface* experimental_async() { return nullptr; }
   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::amwolff::matmult::v1::MultiplyResponse>* AsyncMultiplyRaw(::grpc::ClientContext* context, const ::amwolff::matmult::v1::MultiplyRequest& request, ::grpc::CompletionQueue* cq) = 0;
@@ -86,8 +90,16 @@ class MatrixProductAPI final {
      public:
       void Multiply(::grpc::ClientContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response, std::function<void(::grpc::Status)>) override;
       void Multiply(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::amwolff::matmult::v1::MultiplyResponse* response, std::function<void(::grpc::Status)>) override;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void Multiply(::grpc::ClientContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
       void Multiply(::grpc::ClientContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void Multiply(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
       void Multiply(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
      private:
       friend class Stub;
       explicit experimental_async(Stub* stub): stub_(stub) { }
@@ -115,7 +127,7 @@ class MatrixProductAPI final {
   template <class BaseClass>
   class WithAsyncMethod_Multiply : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_Multiply() {
       ::grpc::Service::MarkMethodAsync(0);
@@ -124,7 +136,7 @@ class MatrixProductAPI final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Multiply(::grpc::ServerContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response) override {
+    ::grpc::Status Multiply(::grpc::ServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -136,39 +148,59 @@ class MatrixProductAPI final {
   template <class BaseClass>
   class ExperimentalWithCallbackMethod_Multiply : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     ExperimentalWithCallbackMethod_Multiply() {
-      ::grpc::Service::experimental().MarkMethodCallback(0,
-        new ::grpc_impl::internal::CallbackUnaryHandler< ::amwolff::matmult::v1::MultiplyRequest, ::amwolff::matmult::v1::MultiplyResponse>(
-          [this](::grpc::ServerContext* context,
-                 const ::amwolff::matmult::v1::MultiplyRequest* request,
-                 ::amwolff::matmult::v1::MultiplyResponse* response,
-                 ::grpc::experimental::ServerCallbackRpcController* controller) {
-                   return this->Multiply(context, request, response, controller);
-                 }));
-    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodCallback(0,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::amwolff::matmult::v1::MultiplyRequest, ::amwolff::matmult::v1::MultiplyResponse>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response) { return this->Multiply(context, request, response); }));}
     void SetMessageAllocatorFor_Multiply(
         ::grpc::experimental::MessageAllocator< ::amwolff::matmult::v1::MultiplyRequest, ::amwolff::matmult::v1::MultiplyResponse>* allocator) {
-      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::amwolff::matmult::v1::MultiplyRequest, ::amwolff::matmult::v1::MultiplyResponse>*>(
-          ::grpc::Service::experimental().GetHandler(0))
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(0);
+    #else
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(0);
+    #endif
+      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::amwolff::matmult::v1::MultiplyRequest, ::amwolff::matmult::v1::MultiplyResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~ExperimentalWithCallbackMethod_Multiply() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Multiply(::grpc::ServerContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response) override {
+    ::grpc::Status Multiply(::grpc::ServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual void Multiply(::grpc::ServerContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response, ::grpc::experimental::ServerCallbackRpcController* controller) { controller->Finish(::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "")); }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* Multiply(
+      ::grpc::CallbackServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* Multiply(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/)
+    #endif
+      { return nullptr; }
   };
+  #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+  typedef ExperimentalWithCallbackMethod_Multiply<Service > CallbackService;
+  #endif
+
   typedef ExperimentalWithCallbackMethod_Multiply<Service > ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_Multiply : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_Multiply() {
       ::grpc::Service::MarkMethodGeneric(0);
@@ -177,7 +209,7 @@ class MatrixProductAPI final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Multiply(::grpc::ServerContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response) override {
+    ::grpc::Status Multiply(::grpc::ServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -185,7 +217,7 @@ class MatrixProductAPI final {
   template <class BaseClass>
   class WithRawMethod_Multiply : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_Multiply() {
       ::grpc::Service::MarkMethodRaw(0);
@@ -194,7 +226,7 @@ class MatrixProductAPI final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Multiply(::grpc::ServerContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response) override {
+    ::grpc::Status Multiply(::grpc::ServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -205,32 +237,45 @@ class MatrixProductAPI final {
   template <class BaseClass>
   class ExperimentalWithRawCallbackMethod_Multiply : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     ExperimentalWithRawCallbackMethod_Multiply() {
-      ::grpc::Service::experimental().MarkMethodRawCallback(0,
-        new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
-          [this](::grpc::ServerContext* context,
-                 const ::grpc::ByteBuffer* request,
-                 ::grpc::ByteBuffer* response,
-                 ::grpc::experimental::ServerCallbackRpcController* controller) {
-                   this->Multiply(context, request, response, controller);
-                 }));
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodRawCallback(0,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->Multiply(context, request, response); }));
     }
     ~ExperimentalWithRawCallbackMethod_Multiply() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Multiply(::grpc::ServerContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response) override {
+    ::grpc::Status Multiply(::grpc::ServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual void Multiply(::grpc::ServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response, ::grpc::experimental::ServerCallbackRpcController* controller) { controller->Finish(::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "")); }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* Multiply(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* Multiply(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #endif
+      { return nullptr; }
   };
   template <class BaseClass>
   class WithStreamedUnaryMethod_Multiply : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_Multiply() {
       ::grpc::Service::MarkMethodStreamed(0,
@@ -240,7 +285,7 @@ class MatrixProductAPI final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status Multiply(::grpc::ServerContext* context, const ::amwolff::matmult::v1::MultiplyRequest* request, ::amwolff::matmult::v1::MultiplyResponse* response) override {
+    ::grpc::Status Multiply(::grpc::ServerContext* /*context*/, const ::amwolff::matmult::v1::MultiplyRequest* /*request*/, ::amwolff::matmult::v1::MultiplyResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
